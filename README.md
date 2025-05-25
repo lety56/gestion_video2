@@ -1,1 +1,3 @@
-# Gestion_videos
+# Gestion de vidéos
+
+Projet de soutenance - Lety
