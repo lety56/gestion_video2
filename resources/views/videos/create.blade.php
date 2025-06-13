@@ -431,23 +431,32 @@
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
+              
+              <div class="col-md-4">
+                <label for="date_ajout" class="form-label">Date d'ajout<span class="text-danger">*</span></label>
+                <input type="date" id="date_ajout" name="date_ajout" value="{{ old('date_ajout') }}" class="form-control @error('date_ajout') is-invalid @enderror" required>
+                @error('date_ajout')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+              
+              <div class="col-md-4">
+                <label for="date_enregistrement" class="form-label">Date d'enregistrement<span class="text-danger">*</span></label>
+                <input type="date" id="date_enregistrement" name="date_enregistrement" value="{{ old('date_enregistrement') }}" class="form-control @error('date_enregistrement') is-invalid @enderror" required>
+                @error('date_enregistrement')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
             </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label for="date_ajout" class="form-label">Date d'ajout<span class="text-danger">*</span></label>
-              <input type="date" id="date_ajout" name="date_ajout" value="{{ old('date_ajout') }}" class="form-control @error('date_ajout') is-invalid @enderror" required>
-              @error('date_ajout')
-                <div class="invalid-feedback">{{ $message }}</div>
-              @enderror
-            </div>
-          
-            <div class="col-md-6">
-              <label for="date_enregistrement" class="form-label">Date d’enregistrement<span class="text-danger">*</span></label>
-              <input type="date" id="date_enregistrement" name="date_enregistrement" value="{{ old('date_enregistrement') }}" class="form-control @error('date_enregistrement') is-invalid @enderror" required>
-              @error('date_enregistrement')
-                <div class="invalid-feedback">{{ $message }}</div>
-              @enderror
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="date_intervention" class="form-label">Date d'intervention<span class="text-danger">*</span></label>
+                <input type="date" id="date_intervention" name="date_intervention" value="{{ old('date_intervention') }}" class="form-control @error('date_intervention') is-invalid @enderror" required>
+                @error('date_intervention')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
             </div>
           </div>
           
@@ -489,9 +498,9 @@
                 <label for="id_type_operation" class="form-label">Type d'opération<span class="text-danger">*</span></label>
                 <select id="id_type_operation" name="id_type_operation" class="form-select @error('id_type_operation') is-invalid @enderror">
                   <option value="">-- Sélectionner un type d'opération --</option>
-                  @foreach($type_operations as $type)
-                    <option value="{{ $type->id_type_operation }}" @selected(old('id_type_operation') == $type->id_type_operation)>
-                      {{ $type->nom_type_operation }}
+                  @foreach($type_operations as $TypOperation)
+                    <option value="{{ $TypOperation->id_type_operation }}" @selected(old('id_type_operation') == $TypOperation->id_type_operation)>
+                      {{ $TypOperation->nom_type_operation }}
                     </option>
                   @endforeach
                 </select>
@@ -564,6 +573,19 @@
                   <input type="text" id="nom_docteur" name="nom_docteur" value="{{ old('nom_docteur') }}" class="form-control @error('nom_docteur') is-invalid @enderror">
                 </div>
                 @error('nom_docteur')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="nom_intervenant" class="form-label">Nom des intervenants</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-people"></i></span>
+                  <input type="text" id="nom_intervenant" name="nom_intervenant" value="{{ old('nom_intervenant') }}" class="form-control @error('nom_intervenant') is-invalid @enderror">
+                </div>
+                @error('nom_intervenant')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>

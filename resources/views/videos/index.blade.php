@@ -222,6 +222,11 @@
       .action-buttons .btn {
         margin-right: 0;
         margin-bottom: 5px;
+        width: 100%;
+      }
+      
+      .table-responsive {
+        overflow-x: auto;
       }
     }
   </style>
@@ -296,10 +301,12 @@
       </div>
 
       <!-- Alert Message -->
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>La vidéo a été ajoutée avec succès!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+      @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      @endif
 
       <!-- Filter Options -->
       <div class="card mb-4">
@@ -309,14 +316,18 @@
               <label for="filterCategory" class="form-label">Catégorie</label>
               <select class="form-select" id="filterCategory">
                 <option value="">Toutes les catégories</option>
-                <option value="1">Chirurgie</option>
-                <option value="2">Consultation</option>
-                <option value="3">Rééducation</option>
+               {{-- @foreach($categories as $categorie)
+    <option value="{{ $categorie->id_categorie }}">{{ $categorie->nom_categorie }}</option>
+@endforeach --}}
               </select>
             </div>
             <div class="col-md-3">
               <label for="filterDoctor" class="form-label">Docteur</label>
               <input type="text" class="form-control" id="filterDoctor" placeholder="Nom du docteur">
+            </div>
+            <div class="col-md-3">
+              <label for="filterDoctor" class="form-label">intervention</label>
+              <input type="text" class="form-control" id="filterDoctor" placeholder="Nom d`intervention">
             </div>
             <div class="col-md-3">
               <label for="filterPatient" class="form-label">Patient</label>
@@ -326,9 +337,16 @@
               <label for="filterDate" class="form-label">Date</label>
               <input type="date" class="form-control" id="filterDate">
             </div>
+             <div class="col-md-3">
+              <label for="filterDate" class="form-label">Date_intervenant</label>
+              <input type="date" class="form-control" id="filterDate">
+            </div>
             <div class="col-md-12 text-center">
               <button type="submit" class="btn btn-info rounded-pill mt-3">
                 <i class="bi bi-funnel me-2"></i>Filtrer
+              </button>
+              <button type="reset" class="btn btn-outline-secondary rounded-pill mt-3 ms-2">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
               </button>
             </div>
           </form>
@@ -336,51 +354,56 @@
       </div>
 
       <!-- Video Table -->
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Catégorie</th>
-            <th>Patient</th>
-            <th>Docteur</th>
-            <th>Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-  @foreach($videos as $video)
-    <tr>
-      <td>{{ $video->titre }}</td>
-      <td>
-        <span class="badge bg-primary">{{ $video->categorie->nom ?? 'Non défini' }}</span>
-      </td>
-      <td>{{ $video->nom_patient }}</td>
-      <td>{{ $video->nom_docteur }}</td>
-      <td>{{ \Carbon\Carbon::parse($video->date_enregistrement)->format('d/m/Y') }}</td>
-      <td class="action-buttons">
-     <a href="{{ route('videos.show', ['video' => $video->id_video]) }}" class="btn btn-info btn-sm rounded-pill">
-    <i class="bi bi-eye me-1"></i>Voir
-</a>
-<a href="{{ route('videos.edit', ['video' => $video->id_video]) }}" class="btn btn-warning btn-sm rounded-pill">
-    <i class="bi bi-pencil me-1"></i>Modifier
-</a>
-
-     <form action="{{ route('videos.destroy', $video->id_video) }}" method="POST" class="d-inline">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="btn btn-danger btn-sm rounded-pill" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')">
-        <i class="bi bi-trash me-1"></i>Supprimer
-    </button>
-</form>
-
-
-      </td>
-    </tr>
-  @endforeach
-</tbody>
-
-        
-      </table>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Catégorie</th>
+              <th>Patient</th>
+              <th>Docteur</th>
+              <th>Intervenant</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse($videos as $video)
+              <tr>
+                <td>{{ $video->titre }}</td>
+                <td>
+                  <span class="badge bg-primary">{{ $video->categorie->nom ?? 'Non défini' }}</span>
+                </td>
+                <td>{{ $video->nom_patient }}</td>
+                <td>{{ $video->nom_docteur }}</td>
+                <td>{{ $video->nom_intervenant }}</td>
+                <td>{{ \Carbon\Carbon::parse($video->date_enregistrement)->format('d/m/Y') }}</td>
+                <td class="action-buttons">
+                  <div class="d-flex flex-wrap">
+                    <a href="{{ route('videos.show', $video->id_video) }}" class="btn btn-info btn-sm rounded-pill me-2 mb-2">
+                      <i class="bi bi-eye me-1"></i>Voir
+                    </a>
+                    <a href="{{ route('videos.edit', $video->id_video) }}" class="btn btn-warning btn-sm rounded-pill me-2 mb-2">
+                      <i class="bi bi-pencil me-1"></i>Modifier
+                    </a>
+                    <form action="{{ route('videos.destroy', $video->id_video) }}" method="POST" class="d-inline">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="btn btn-danger btn-sm rounded-pill mb-2" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette vidéo ?')">
+                        <i class="bi bi-trash me-1"></i>Supprimer
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="7" class="text-center">Aucune vidéo trouvée</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
 
       <!-- Pagination -->
       <div class="pagination">
@@ -391,6 +414,20 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JS -->
+  <script>
+    // Activer les tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fermer automatiquement les alertes après 5 secondes
+      setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        });
+      }, 5000);
+    });
+  </script>
 </body>
-
 </html>

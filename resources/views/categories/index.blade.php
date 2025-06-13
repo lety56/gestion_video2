@@ -23,7 +23,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 
   <style>
-    /* Ton CSS personnalisé (copié du style que tu as fourni) */
     :root {
       --primary-color: #2eca6a;
       --secondary-color: #0078ff;
@@ -77,14 +76,58 @@
       margin-right: 0.25rem;
     }
 
+    .category-level-1 {
+      background-color: rgba(0, 120, 255, 0.05);
+    }
+    
     .category-level-1 td {
-      padding-left: 2rem;
-      font-style: italic;
+      padding-left: 2.5rem;
       color: #444;
+      position: relative;
+    }
+    
+    .category-level-1 td:first-child:before {
+      content: "";
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      width: 20px;
+      height: 1px;
+      background-color: var(--secondary-color);
     }
 
     .animate-slide-in {
       animation: slideIn 0.5s ease forwards;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: rgba(46, 202, 106, 0.1);
+    }
+    
+    .badge-parent {
+      background-color: var(--primary-color);
+    }
+    
+    .badge-child {
+      background-color: var(--secondary-color);
+    }
+    
+    .search-box {
+      max-width: 400px;
+      margin-bottom: 2rem;
+    }
+    
+    .empty-state {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+    }
+    
+    .empty-state-icon {
+      font-size: 3rem;
+      color: #adb5bd;
+      margin-bottom: 1rem;
     }
 
     @keyframes slideIn {
@@ -95,6 +138,18 @@
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .btn-group {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
+      
+      .btn-group .btn {
+        margin-right: 0;
+        padding: 0.25rem 0.5rem;
       }
     }
   </style>
@@ -146,82 +201,184 @@
   <main>
     <div class="container animate-slide-in">
       <!-- Breadcrumb -->
-      <nav aria-label="breadcrumb">
+      <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ url('/') }}">Accueil</a></li>
           <li class="breadcrumb-item active" aria-current="page">Catégories</li>
         </ol>
       </nav>
 
-      <h1 class="section-title">Liste des catégories</h1>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="section-title mb-0">Liste des catégories</h1>
+        <a href="{{ route('categories.create') }}" class="btn btn-success rounded-pill d-lg-none">
+          <i class="bi bi-plus-lg me-1"></i> Nouvelle
+        </a>
+      </div>
 
       @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ session('success') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
       @endif
 
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-group search-box">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Rechercher une catégorie..." id="searchInput">
+                <button class="btn btn-outline-secondary" type="button" id="clearSearch">Effacer</button>
+              </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-funnel"></i> Filtrer
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#" data-filter="all">Toutes les catégories</a></li>
+                  <li><a class="dropdown-item" href="#" data-filter="parent">Catégories parentes</a></li>
+                  <li><a class="dropdown-item" href="#" data-filter="child">Sous-catégories</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover align-middle" id="categoriesTable">
           <thead class="table-light">
             <tr>
               <th>Nom</th>
               <th>Description</th>
-              <th>Actions</th>
+              <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
-            @foreach ($categories as $categorie)
+            @if($categories->isEmpty())
               <tr>
-                <td><strong>{{ $categorie->nom_categorie }}</strong></td>
-                <td>{{ $categorie->description }}</td>
-                <td>
-                  <div class="btn-group" role="group" aria-label="Actions">
-                    <a href="{{ route('categories.show', $categorie->id_categorie) }}" class="btn btn-sm btn-outline-primary" title="Voir">
-                      <i class="bi bi-eye"></i>
+                <td colspan="3">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">
+                      <i class="bi bi-folder-x"></i>
+                    </div>
+                    <h4>Aucune catégorie trouvée</h4>
+                    <p class="text-muted">Commencez par créer une nouvelle catégorie</p>
+                    <a href="{{ route('categories.create') }}" class="btn btn-primary">
+                      <i class="bi bi-plus-lg me-1"></i> Créer une catégorie
                     </a>
-                    <a href="{{ route('categories.edit', $categorie->id_categorie) }}" class="btn btn-sm btn-outline-success" title="Modifier">
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                    <form action="{{ route('categories.destroy', $categorie->id_categorie) }}" method="POST" style="display:inline;">
-                      @csrf
-                      @method('DELETE')
-                      <button class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="return confirm('Voulez-vous vraiment supprimer cette catégorie ?')">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </form>
                   </div>
                 </td>
               </tr>
-
-              @foreach ($categorie->children as $child)
-                <tr class="category-level-1">
-                  <td><i class="bi bi-arrow-return-right me-2"></i>{{ $child->nom_categorie }}</td>
-                  <td>{{ $child->description }}</td>
+            @else
+              @foreach ($categories as $categorie)
+                <tr class="category-row" data-type="parent">
                   <td>
-                    <div class="btn-group" role="group" aria-label="Actions">
-                      <a href="{{ route('categories.show', $child->id_categorie) }}" class="btn btn-sm btn-outline-primary" title="Voir">
-                        <i class="bi bi-eye"></i>
-                      </a>
-                      <a href="{{ route('categories.edit', $child->id_categorie) }}" class="btn btn-sm btn-outline-success" title="Modifier">
-                        <i class="bi bi-pencil"></i>
-                      </a>
-                      <form action="{{ route('categories.destroy', $child->id_categorie) }}" method="POST" style="display:inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-outline-danger" title="Supprimer" onclick="return confirm('Voulez-vous vraiment supprimer cette catégorie ?')">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
+                    <strong>{{ $categorie->nom_categorie }}</strong>
+                    <span class="badge badge-parent ms-2">Parent</span>
+                  </td>
+                  <td>{{ $categorie->description }}</td>
+                  <td>
+                    <div class="d-flex justify-content-end">
+                      <div class="btn-group" role="group" aria-label="Actions">
+                        <a href="{{ route('categories.show', $categorie->id_categorie) }}" class="btn btn-sm btn-outline-primary" title="Voir détails" aria-label="Voir">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('categories.edit', $categorie->id_categorie) }}" class="btn btn-sm btn-outline-success" title="Modifier" aria-label="Modifier">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{{ route('categories.destroy', $categorie->id_categorie) }}" method="POST" class="d-inline">
+                          @csrf
+                          @method('DELETE')
+                          <button type="button" class="btn btn-sm btn-outline-danger delete-btn" title="Supprimer" aria-label="Supprimer" data-id="{{ $categorie->id_categorie }}">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </div>
                     </div>
                   </td>
                 </tr>
-              @endforeach
 
-            @endforeach
+                @foreach ($categorie->children as $child)
+                  <tr class="category-level-1 category-row" data-type="child">
+                    <td>{{ $child->nom_categorie }} <span class="badge badge-child ms-2">Enfant</span></td>
+                    <td>{{ $child->description }}</td>
+                    <td>
+                      <div class="d-flex justify-content-end">
+                        <div class="btn-group" role="group" aria-label="Actions">
+                          <a href="{{ route('categories.show', $child->id_categorie) }}" class="btn btn-sm btn-outline-primary" title="Voir détails" aria-label="Voir">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                          <a href="{{ route('categories.edit', $child->id_categorie) }}" class="btn btn-sm btn-outline-success" title="Modifier" aria-label="Modifier">
+                            <i class="bi bi-pencil"></i>
+                          </a>
+                          <form action="{{ route('categories.destroy', $child->id_categorie) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn" title="Supprimer" aria-label="Supprimer" data-id="{{ $child->id_categorie }}">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                @endforeach
+              @endforeach
+            @endif
           </tbody>
         </table>
       </div>
+      
+      @if($categories->isNotEmpty())
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div class="text-muted">
+            Affichage de <span id="visibleCount">{{ $categories->count() + $categories->sum(fn($cat) => $cat->children->count()) }}</span> catégories
+          </div>
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-end">
+              <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+              </li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#">Suivant</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      @endif
     </div>
   </main>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer cette catégorie ? Cette action est irréversible.</p>
+          <p class="fw-bold">Toutes les sous-catégories associées seront également supprimées.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <form id="deleteForm" method="POST">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer class="bg-light py-4 mt-5">
     <div class="container text-center">
@@ -231,6 +388,72 @@
 
   <!-- Vendor JS Files -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Gestion de la suppression avec confirmation modale
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const categoryId = this.getAttribute('data-id');
+          const form = this.closest('form');
+          const deleteForm = document.getElementById('deleteForm');
+          
+          deleteForm.action = form.action;
+          const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+          modal.show();
+        });
+      });
+      
+      // Fonctionnalité de recherche
+      const searchInput = document.getElementById('searchInput');
+      const clearSearch = document.getElementById('clearSearch');
+      const categoryRows = document.querySelectorAll('.category-row');
+      
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        let visibleCount = 0;
+        
+        categoryRows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        
+        document.getElementById('visibleCount').textContent = visibleCount;
+      });
+      
+      clearSearch.addEventListener('click', function() {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+      });
+      
+      // Filtrage par type de catégorie
+      document.querySelectorAll('[data-filter]').forEach(filter => {
+        filter.addEventListener('click', function(e) {
+          e.preventDefault();
+          const filterType = this.getAttribute('data-filter');
+          let visibleCount = 0;
+          
+          categoryRows.forEach(row => {
+            const rowType = row.getAttribute('data-type');
+            
+            if (filterType === 'all' || rowType === filterType) {
+              row.style.display = '';
+              visibleCount++;
+            } else {
+              row.style.display = 'none';
+            }
+          });
+          
+          document.getElementById('visibleCount').textContent = visibleCount;
+        });
+      });
+    });
+  </script>
 </body>
 
 </html>

@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model
 {
-    protected $fillable = ['video_id', 'auteur', 'valeur'];
-
+    protected $fillable = ['id_video', 'id_utilisateurs', 'valeur', 'commentaire'];
+    
     public function video()
     {
-        return $this->belongsTo(Video::class, 'video_id', 'id_video');
+        return $this->belongsTo(Video::class, 'id_video', 'id_video');
+    }
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

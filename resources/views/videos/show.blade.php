@@ -33,10 +33,11 @@
                 <!-- Video Player -->
                 <div class="video-player-container mb-4">
                     @if ($video->chemin_fichier)
-                        <video width="100%" height="auto" controls>
-                            <source src="{{ asset('storage/' . $video->chemin_fichier) }}" type="video/mp4">
-                            Votre navigateur ne supporte pas la lecture vidéo.
-                        </video>
+                        <video width="640" height="480" controls>
+                        <source src="{{ asset('storage/' . $video->chemin_fichier) }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture de vidéos.
+                    </video>
+
                     @else
                         <p class="text-muted">Vidéo non disponible.</p>
                     @endif
@@ -56,41 +57,37 @@
                     </div>
                 </div>
 
-                <!-- Comments Section -->
-                <div class="card-body">
-                    @auth
-                        <form action="{{ route('commentaires.store', ['video' => $video->id_video]) }}" method="POST" class="mb-4">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="contenu" class="form-label">Ajouter un commentaire</label>
-                                <textarea class="form-control @error('contenu') is-invalid @enderror" id="contenu" name="contenu" rows="3" required>{{ old('contenu') }}</textarea>
-                                  @error('contenu')
-            {{-- @php $errorMessage = $message; @endphp --}}
-            <div class="invalid-feedback">{{ $errorMessage }}</div>
-        @enderror
-r
-                            </div>
-                            <button type="submit" class="btn btn-primary">Envoyer</button>
-                        </form>
-                    @else
-                        <p><a href="{{ route('login') }}">Connectez-vous</a> pour ajouter un commentaire.</p>
-                    @endauth
-
-                    <hr>
-
-                    {{-- Commentaires désactivés temporairement --}}
-                    {{-- <h6>Commentaires ({{ $video->commentaires->count() }})</h6> --}}
-                    {{-- <div class="comments-list">
-                        @forelse ($video->commentaires()->latest()->get() as $commentaire)
-                            <div class="mb-3 border rounded p-3">
-                                <strong>{{ $commentaire->user ? $commentaire->user->name : 'Anonyme' }}</strong>
-                                <small class="text-muted"> - {{ $commentaire->created_at->diffForHumans() }}</small>
-                                <p class="mb-0">{{ $commentaire->contenu }}</p>
-                            </div>
-                        @empty
-                            <p class="text-muted">Aucun commentaire pour le moment.</p>
-                        @endforelse
-                    </div> --}}
+                <!-- Share Video Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-share me-2"></i>Partager cette vidéo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="share-url" value="{{ url()->current() }}" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyShareUrl()">
+                                <i class="bi bi-clipboard"></i> Copier
+                            </button>
+                        </div>
+                        <div class="social-share-buttons">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" 
+                               target="_blank" class="btn btn-primary me-2">
+                                <i class="bi bi-facebook"></i> Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($video->titre) }}" 
+                               target="_blank" class="btn btn-info me-2">
+                                <i class="bi bi-twitter"></i> Twitter
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(url()->current()) }}&title={{ urlencode($video->titre) }}" 
+                               target="_blank" class="btn btn-secondary">
+                                <i class="bi bi-linkedin"></i> LinkedIn
+                            </a>
+                                    <a href="https://wa.me/?text={{ urlencode($video->titre . ' ' . url()->current()) }}" 
+                                target="_blank" class="btn btn-success">
+                                <i class="bi bi-whatsapp"></i> WhatsApp
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -114,6 +111,12 @@ r
                                     <span class="fw-bold">{{ $video->nom_docteur }}</span>
                                 </li>
                             @endif
+                             @if($video->nom_intervenant)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-person-badge me-2"></i>Non des intervenants</span>
+                                    <span class="fw-bold">{{ $video->nom_intervenant }}</span>
+                                </li>
+                            @endif
                             @if ($video->date_enregistrement)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span><i class="bi bi-calendar-check me-2"></i>Date d'enregistrement</span>
@@ -124,6 +127,12 @@ r
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span><i class="bi bi-calendar-plus me-2"></i>Date d'ajout</span>
                                     <span>{{ \Carbon\Carbon::parse($video->date_ajout)->format('d/m/Y') }}</span>
+                                </li>
+                            @endif
+                              @if ($video->date_intervenant)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-calendar-plus me-2"></i>Date d`intervention</span>
+                                    <span>{{ \Carbon\Carbon::parse($video->date_intervenant)->format('d/m/Y') }}</span>
                                 </li>
                             @endif
                         </ul>
@@ -190,6 +199,13 @@ r
         width: 50,    // fixe largeur à 50px (petite vidéo)
         height: 50    // ajuste hauteur proportionnellement
     });
+
+    function copyShareUrl() {
+        const shareUrl = document.getElementById('share-url');
+        shareUrl.select();
+        document.execCommand('copy');
+        alert('Lien copié dans le presse-papier !');
+    }
 });
 </script>
 @endpush
@@ -206,7 +222,7 @@ r
     .video-title { font-weight: 200; margin-bottom: 1rem; }
     .video-metadata { margin-bottom: 1.5rem; }
     .video-metadata .badge { margin-right: 0.5rem; padding: 0.5rem 0.75rem; }
-    .comments-list { max-height: 100px; overflow-y: auto; }
+    .social-share-buttons { margin-top: 1rem; }
     .stars-display { font-size: 1.5rem; }
 </style>
 @endpush

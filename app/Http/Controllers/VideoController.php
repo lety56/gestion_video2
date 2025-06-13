@@ -14,16 +14,19 @@ use Carbon\Carbon;
 
 class VideoController extends Controller
 {
-    // public function index()
-    // {
-    //     $videos = Video::with(['categorie', 'typeOperation', 'pathologie'])
-    //         ->orderBy('date_ajout', 'desc')
-    //         ->paginate(10);
 
-    //     return view('videos.index', compact('videos'));
-    // }
+public function create()
+{
+    $categories = Categorie::all();
+    $type_operations = TypeOperation::all(); // <- Cette ligne est nécessaire
+    $pathologies = Pathologie::all();
+
+    return view('videos.create', compact('categories', 'type_operations', 'pathologies'));
+}
 
 
+
+    
 public function index(Request $request)
 {
     // Récupérer tous les types d'opérations

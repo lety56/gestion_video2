@@ -40,11 +40,12 @@ class TypeOperationController extends Controller
         return redirect()->route('type-operations.edit', $typeOperation->id);
     }
     
-    public function edit($id)
-    {
-        $type = TypeOperation::findOrFail($id);
-        return view('type-operations.edit', compact('type'));
-    }
+   public function edit($id)
+{
+    $typeOperation = TypeOperation::findOrFail($id);
+    return view('type-operations.edit', compact('typeOperation'));
+}
+
 
     public function update(Request $request, $id)
     {

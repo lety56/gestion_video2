@@ -17,11 +17,13 @@ class CreateVideosTable extends Migration
             $table->unsignedBigInteger('id_pathologie')->nullable();
             $table->string('nom_patient');
             $table->string('nom_docteur');
+              $table->string('nom_intervenant');
              $table->string('chemin_fichier')->nullable(); // <== AJOUT ICI
             $table->boolean('est_telechargeable');
             $table->integer('duree')->default(0);
             $table->timestamp('date_enregistrement')->useCurrent();
             $table->timestamp('date_ajout')->useCurrent();
+             $table->timestamp('date_intervenant')->useCurrent();
             $table->timestamps();
 
             $table->engine = 'InnoDB';

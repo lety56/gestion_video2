@@ -9,12 +9,11 @@ use Illuminate\Http\Request;
 
 class CategorieController extends Controller
 {
-    public function index()
-    {
-        $categories = Categorie::all();  // Utilisation de Category
-        return view('categories.index', compact('categories'));
-    }
-
+public function index()
+{
+    $categories = Categorie::with(['videos', 'children'])->get();
+    return view('categories.index', compact('categories'));
+}
     public function create()
     {
         $categories = Categorie::all();  // Utilisation de Category

@@ -73,7 +73,7 @@
     <h1>Modifier un Type d'Opération</h1>
 
    
-    <form action="{{ route('type_operations.update', $typeOperation->id_pathologie) }}" method="POST">
+    <form action="{{ route('type-operations.update', $typeOperation->id_pathologie) }}" method="POST">
         @method('PUT')
         <table class="form-table">
             <tr>

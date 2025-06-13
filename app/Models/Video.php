@@ -15,11 +15,13 @@ class Video extends Model
         'chemin_fichier',
         'nom_patient',
         'nom_docteur',
+        'nom_intervenant',
         'est_telechargeable',
         'id_type_operations',
         'id_pathologie',
         'date_enregistrement',
         'date_ajout',
+           'date_intervenant',
         'duree',
     ];
 
